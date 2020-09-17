@@ -18,7 +18,9 @@ from sklearn.utils import check_X_y
 from sklearn.utils import check_random_state
 from sklearn.utils import check_consistent_length
 from sklearn.metrics import roc_auc_score
-
+from sklearn.metrics import average_precision_score
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import auc
 from .utility import precision_n_scores
 from .utility import check_parameter
 
@@ -277,11 +279,14 @@ def evaluate_print(clf_name, y, y_pred):
     y = column_or_1d(y)
     y_pred = column_or_1d(y_pred)
     check_consistent_length(y, y_pred)
-
-    print('{clf_name} ROC:{roc}, precision @ rank n:{prn}'.format(
+    precision, recall, thresholds = precision_recall_curve(y, y_pred)
+    
+    print('{clf_name} ROC:{roc}, precision @ rank n:{prn}, average precision:{ap}, AUC PR:{prc} '.format(
         clf_name=clf_name,
         roc=np.round(roc_auc_score(y, y_pred), decimals=4),
-        prn=np.round(precision_n_scores(y, y_pred), decimals=4)))
+        prn=np.round(precision_n_scores(y, y_pred), decimals=4),
+        ap = np.round(average_precision_score(y, y_pred), decimals=4),
+        prc = np.round(auc(recall, precision), decimals=4)))
 
 
 def generate_data_clusters(n_train=1000, n_test=500, n_clusters=2,
